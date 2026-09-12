@@ -3,6 +3,7 @@ plugins {
 }
 
 android {
+    namespace 'com.tiny.snake'
     compileSdk 33
 
     defaultConfig {
@@ -21,4 +22,3 @@ android {
         }
     }
 }
-
