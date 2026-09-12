@@ -1,17 +1,1 @@
-package com.tiny.snake;import android.app.*;import android.graphics.*;import android.os.*;import android.view.*;public class MainActivity extends Activity implements View.OnTouchListener,Runnable{
-int[] s=new int[400];int l=3,f=150,d=1,w=20,t,i;boolean o;Handler h=new Handler();View v;
-protected void onCreate(Bundle b){super.onCreate(b);s[0]=210;s[1]=209;s[2]=208;
-v=new View(this){protected void onDraw(Canvas c){c.drawColor(-16777216);Paint p=new Paint();t=getWidth()/w;
-if(o){p.setColor(-65536);p.setTextSize(40);c.drawText("GAME OVER",20,100,p);return;}
-p.setColor(-16711936);for(i=0;i<l;i++)c.drawRect((s[i]%w)*t,(s[i]/w)*t,(s[i]%w+1)*t,(s[i]/w+1)*t,p);
-p.setColor(-65536);c.drawRect((f%w)*t,(f/w)*t,(f%w+1)*t,(f/w+1)*t,p);}};
-setContentView(v);v.setOnTouchListener(this);h.postDelayed(this,150);}
-public void run(){if(o)return;int n=s[0]+(d==1?1:d==-1?-1:d==20?20:-20);
-if(n<0||n>=400||(d==1&&n%w==0)||(d==-1&&(n+1)%w==0))o=true;
-for(i=0;i<l;i++)if(s[i]==n)o=true;
-if(!o){System.arraycopy(s,0,s,1,l);s[0]=n;if(n==f){l++;f=(int)(Math.random()*400);}h.postDelayed(this,150);}
-v.invalidate();}
-public boolean onTouch(View v,MotionEvent e){if(e.getAction()==0){if(o){l=3;s[0]=210;s[1]=209;s[2]=208;d=1;o=false;h.postDelayed(this,150);return true;}
-float x=e.getX()-v.getWidth()/2,y=e.getY()-v.getHeight()/2;
-if(Math.abs(x)>Math.abs(y))d=x>0?1:-1;else d=y>0?20:-20;}return true;}}
-
+package com.tiny.snake; import android.app.Activity; import android.content.Context; import android.graphics.*; import android.os.*; import android.view.*; import java.util.Random; public class MainActivity extends Activity { @Override protected void onCreate(Bundle b) { super.onCreate(b); setContentView(new SnakeView(this)); } private class SnakeView extends View { int[] x = new int[100], y = new int[100]; int len = 3, dx = 1, dy = 0, fx, fy, sz = 15; Paint p = new Paint(); Handler h = new Handler(); boolean dead = false; public SnakeView(Context c) { super(c); reset(); h.postDelayed(new Runnable() { public void run() { update(); invalidate(); h.postDelayed(this, 150); } }, 150); } void reset() { len = 3; dx = 1; dy = 0; dead = false; for (int i = 0; i < len; i++) { x[i] = 5 - i; y[i] = 5; } fx = new Random().nextInt(sz); fy = new Random().nextInt(sz); } void update() { if (dead) return; for (int i = len - 1; i > 0; i--) { x[i] = x[i - 1]; y[i] = y[i - 1]; } x[0] += dx; y[0] += dy; if (x[0] < 0 || x[0] >= sz || y[0] < 0 || y[0] >= sz) dead = true; for (int i = 1; i < len; i++) if (x[0] == x[i] && y[0] == y[i]) dead = true; if (x[0] == fx && y[0] == fy) { len++; fx = new Random().nextInt(sz); fy = new Random().nextInt(sz); } } @Override protected void onDraw(Canvas c) { c.drawColor(Color.BLACK); int ts = getWidth() / sz; p.setColor(Color.RED); c.drawRect(fx * ts, fy * ts, (fx + 1) * ts, (fy + 1) * ts, p); p.setColor(Color.GREEN); for (int i = 0; i < len; i++) c.drawRect(x[i] * ts, y[i] * ts, (x[i] + 1) * ts, (y[i] + 1) * ts, p); } @Override public boolean onTouchEvent(MotionEvent e) { if (e.getAction() == MotionEvent.ACTION_DOWN) { if (dead) { reset(); return true; } float tx = e.getX(), ty = e.getY(), w = getWidth(); if (ty < tx && ty < (w - tx) && dy == 0) { dx = 0; dy = -1; } else if (ty > tx && ty > (w - tx) && dy == 0) { dx = 0; dy = 1; } else if (tx < ty && tx < (h() - ty) && dx == 0) { dx = -1; dy = 0; } else if (tx > ty && tx > (h() - ty) && dx == 0) { dx = 1; dy = 0; } } return true; } private float h() { return getHeight(); } } }
